@@ -34,12 +34,13 @@
   <div id="result">
     <h2>Result</h2>
     <img id="rankImage">
-    <button onclick="shareImage()">Share</button>
+    <button id="shareBtn" onclick="shareImage()" disabled>Share</button>
   </div>
 
   <script>
     const form = document.getElementById('rankForm');
     const image = document.getElementById('rankImage');
+    const shareBtn = document.getElementById("shareBtn");
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -71,13 +72,13 @@
       const objectURL = URL.createObjectURL(blob);
       image.src = objectURL;
     });
-
+    image.onload = () => {
+      shareBtn.disabled = false;
+    };
     async function shareImage() {
       const img = document.getElementById("rankImage");
     
       try {
-        const response = await fetch(img.src);
-        const blob = await response.blob();
         const file = new File([blob], "rank.png", { type: "image/png" });
     
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
