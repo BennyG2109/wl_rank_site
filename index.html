@@ -34,6 +34,7 @@
   <div id="result">
     <h2>Result</h2>
     <img id="rankImage">
+    <button onclick="shareImage()">Share</button>
   </div>
 
   <script>
@@ -70,6 +71,29 @@
       const objectURL = URL.createObjectURL(blob);
       image.src = objectURL;
     });
+
+    async function shareImage() {
+      const img = document.getElementById("rankImage");
+    
+      try {
+        const response = await fetch(img.src);
+        const blob = await response.blob();
+        const file = new File([blob], "rank.png", { type: "image/png" });
+    
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: "My Weightlifting Rank",
+            text: "Check out my weightlifting rank!",
+            files: [file]
+          });
+        } else {
+          alert("Sharing not supported on this device.");
+        }
+      } catch (err) {
+        console.error("Error sharing image:", err);
+        alert("Failed to share image.");
+      }
+    }
   </script>
 </body>
 </html>
