@@ -9,6 +9,19 @@
       display: block;
       margin: 20px auto;
     }
+    #loadingBarContainer {
+      width: 100%;
+      background: #eee;
+      height: 8px;
+      margin-top: 20px;
+      display: none;
+    }
+    #loadingBar {
+      height: 100%;
+      width: 0%;
+      background: #4caf50;
+      transition: width 0.2s linear;
+    }
   </style>
 </head>
 <body>
@@ -28,7 +41,7 @@
       <option value="Female">Female</option>
     </select><br><br>
 
-    <button type="submit">Generate Image</button>
+    <button id="generateBtn" onclick="startProcess()">Generate</button>
   </form>
 
   <div id="result">
@@ -42,8 +55,23 @@
     const image = document.getElementById('rankImage');
     const shareBtn = document.getElementById("shareBtn");
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    async function startProcess() {
+      const loadingBar = document.getElementById("loadingBar");
+      const loadingContainer = document.getElementById("loadingBarContainer");
+      
+      loadingContainer.style.display = "block";
+      loadingBar.style.width = "0%";
+    
+      // Animate bar manually for 11s
+      let duration = 11000;
+      let interval = 100;
+      let elapsed = 0;
+      let timer = setInterval(() => {
+        elapsed += interval;
+        let percent = Math.min((elapsed / duration) * 100, 100);
+        loadingBar.style.width = percent + "%";
+        if (percent >= 100) clearInterval(timer);
+      }, interval);
 
       const formData = new FormData(form);
       const jsonData = {};
@@ -72,9 +100,13 @@
       const objectURL = URL.createObjectURL(blob);
       image.src = objectURL;
     });
+
+    
     image.onload = () => {
       shareBtn.disabled = false;
     };
+
+    
     async function shareImage() {
       const response = await fetch(image.src);
       const blob = await response.blob();
