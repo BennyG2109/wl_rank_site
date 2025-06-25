@@ -41,7 +41,7 @@
       <option value="Female">Female</option>
     </select><br><br>
 
-    <button id="generateBtn" onclick="startProcess()">Generate</button>
+    <button type="submit" id="generateBtn">Generate</button>
   </form>
 
   <div id="result">
@@ -58,40 +58,64 @@
     const image = document.getElementById('rankImage');
     const shareBtn = document.getElementById("shareBtn");
 
-    async function startProcess() {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault(); // Prevent form reload
+
+      shareBtn.disabled = true;
+      image.src = "";
+
       const loadingBar = document.getElementById("loadingBar");
       const loadingContainer = document.getElementById("loadingBarContainer");
-      
+
       loadingContainer.style.display = "block";
       loadingBar.style.width = "0%";
 
+      // Start progress animation (11 sec max)
+      let progress = 0;
+      const duration = 11000; // 11 seconds
+      const intervalTime = 100;
+      const increment = 100 / (duration / intervalTime);
+
+      const interval = setInterval(() => {
+        progress = Math.min(progress + increment, 100);
+        loadingBar.style.width = progress + "%";
+      }, intervalTime);
+
       const formData = new FormData(form);
       const jsonData = {};
-
       formData.forEach((value, key) => {
         jsonData[key] = value;
       });
 
-      // Replace this with your actual deployed Cloud Function URL
-      const endpoint = "https://us-central1-weightlifting-ranking-database.cloudfunctions.net/generate_image";
+      try {
+        const endpoint = "https://us-central1-weightlifting-ranking-database.cloudfunctions.net/generate_image";
 
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(jsonData)
-      });
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(jsonData)
+        });
 
-      if (!response.ok) {
-        alert("Something went wrong.");
-        return;
+        if (!response.ok) {
+          alert("Something went wrong.");
+          clearInterval(interval);
+          loadingBar.style.width = "0%";
+          return;
+        }
+
+        const blob = await response.blob();
+        const objectURL = URL.createObjectURL(blob);
+        image.src = objectURL;
+
+      } catch (error) {
+        alert("Request failed.");
+      } finally {
+        clearInterval(interval);
+        loadingBar.style.width = "100%";
       }
-
-      const blob = await response.blob();
-      const objectURL = URL.createObjectURL(blob);
-      image.src = objectURL;
-    };
+    });
 
     
     image.onload = () => {
