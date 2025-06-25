@@ -25,7 +25,7 @@
   </style>
 </head>
 <body>
-  <h1>Generate Your Rank Image</h1>
+  <h1>Generate Your Rank</h1>
 
   <form id="rankForm">
     <input name="name" placeholder="Name" required><br>
@@ -64,17 +64,6 @@
       
       loadingContainer.style.display = "block";
       loadingBar.style.width = "0%";
-    
-      // Animate bar manually for 11s
-      let duration = 11000;
-      let interval = 100;
-      let elapsed = 0;
-      let timer = setInterval(() => {
-        elapsed += interval;
-        let percent = Math.min((elapsed / duration) * 100, 100);
-        loadingBar.style.width = percent + "%";
-        if (percent >= 100) clearInterval(timer);
-      }, interval);
 
       const formData = new FormData(form);
       const jsonData = {};
@@ -102,7 +91,7 @@
       const blob = await response.blob();
       const objectURL = URL.createObjectURL(blob);
       image.src = objectURL;
-    });
+    };
 
     
     image.onload = () => {
